@@ -1,16 +1,16 @@
 # WAV
 
 Build Instructions:
--'make clean' to clean up .o, .wav, and executable files
--'make' to compile program
--'./wav' to generate wav files
+\'make clean' to clean up .o, .wav, and executable files
+\'make' to compile program
+\'./wav' to generate wav files
 
 What I've Done:
-Nothing
+\Nothing
 
 How It Went:
-N/A
+\N/A
 
 TODO:
-Everything
+\Everything
 
