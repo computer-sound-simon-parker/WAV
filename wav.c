@@ -13,21 +13,8 @@
 #define NUM_CHANNELS 1
 #define SAMPLE_BITS 16
 #define AMPLITUDE 0.25
-#define AMPLITUDE_BITS 16
 #define MAX_INT16 32767
 
-
-//writes count bytes from buff to the end of the file pointed to by f, done in Little Endian
-//not doing checks to make sure you don't read from beyond buff, so be good. count <= buff size
-void write_LE_u32_arr(FILE *fp, int *buff, int count, int num_bytes){
-  char temp[count];
-  for (int i = 0; i < count; i++){
-    for (int j = 0; j < num_bytes; j++){
-      temp[j] = (buff[i] >> 8*j) & 0xff;
-    }
-    fwrite(temp, count, 1, fp);
-  }
-}
 
 void write_LE(FILE *fp, int num, int num_bytes){
   char byte;
