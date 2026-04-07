@@ -63,17 +63,19 @@ void write_sine(FILE *fp){
   for (int i = 0; i < DURATION*SAMPLE_RATE; i++){
     sample = (int16_t) (sin(2.0*M_PI*i*FREQUENCY/SAMPLE_RATE)*MAX_INT16*AMPLITUDE);
     write_LE(fp, sample, 2);
-    printf("%hd\n",  sample);
   }
-  /*
-  for (int i = 0; i < SAMPLE_RATE*DURATION; i++){
-    write_LE(fp, (int16_t) sin(1), 2);
+}
+
+void write_clipped_sine(FILE *fp){
+  int16_t sample;
+  for (int i = 0; i < DURATION*SAMPLE_RATE; i++){
+    sample = (int16_t) (sin(2.0*M_PI*i*FREQUENCY/SAMPLE_RATE)*MAX_INT16*2.0*AMPLITUDE);
+    sample = sample > 8192 ? 8192 : (sample < -8192 ? -8192 : sample);
+    write_LE(fp, sample, 2);
   }
-  */
 }
   
 int main(){
-  printf("Hello World\n");  
   FILE *fp = fopen(PATH_1, "wb");
   if (fp == NULL) {
     perror("fopen");
@@ -81,5 +83,13 @@ int main(){
   }
   write_header(fp);
   write_sine(fp);
+  fclose(fp);
+  fp = fopen(PATH_2, "wb");
+  if (fp == NULL) {
+    perror("fopen");
+    return 1;
+  }
+  write_header(fp);
+  write_clipped_sine(fp);
   fclose(fp);
 }
