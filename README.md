@@ -6,11 +6,11 @@ Build Instructions:\
 './wav' to generate wav files
 
 What I've Done:\
-Nothing
+Sine wave and clipped sine wave
 
 How It Went:\
-N/A
+Smoothly
 
 TODO:\
-Everything
+Play the tone directly
 
