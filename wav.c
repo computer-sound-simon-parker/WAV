@@ -4,6 +4,7 @@
 #include <string.h>
 #include <math.h>
 #include <stdint.h>
+#include <portaudio.h>
 
 #define PATH_1 "./sine.wav\0"
 #define PATH_2 "./clipped.wav\0"
@@ -61,8 +62,43 @@ void write_clipped_sine(FILE *fp){
     write_LE(fp, sample, 2);
   }
 }
+
+typedef struct {
+    int cur_sample;
+    int frames_remaining;
+} SampleTracker;
+
+int audio_callback(const void *input, void *output,
+                          unsigned long frame_count,
+                          const PaStreamCallbackTimeInfo *time_info,
+                          PaStreamCallbackFlags flags,
+                          void *user_data) {
+    SampleTracker *data = (SampleTracker *) user_data;
+    int16_t *out = (int16_t *) output;
+    int16_t sample;
+
+    for (unsigned long i = 0; i < frame_count; i++) {
+        if (data->frames_remaining <= 0) {
+            out[i] = 0.0; //fill out the frame buffer with 0s. can't send partially filled buffers :(
+            continue;
+        }
+        sample = (int16_t) (sin(2.0*M_PI*data->cur_sample*FREQUENCY/SAMPLE_RATE)*MAX_INT16*2.0*AMPLITUDE);
+        sample = sample > 8192 ? 8192 : (sample < -8192 ? -8192 : sample);
+        //i don't like that i have to recalculate the sample. But, I can't write to the wav file in this function, that's too slow
+
+        out[i] = sample;
+
+        data->cur_sample += 1;
+
+        data->frames_remaining--;
+    }
+
+    return data->frames_remaining <= 0 ? paComplete : paContinue;
+}
+
   
 int main(){
+  // File Creation
   FILE *fp = fopen(PATH_1, "wb");
   if (fp == NULL) {
     perror("fopen");
@@ -79,4 +115,33 @@ int main(){
   write_header(fp);
   write_clipped_sine(fp);
   fclose(fp);
+
+  // Audio Playback
+  SampleTracker data = {
+      .cur_sample = 0,
+      .frames_remaining = SAMPLE_RATE * DURATION
+  };
+
+  Pa_Initialize();
+
+  PaStream *stream;
+  Pa_OpenDefaultStream(&stream,
+      0,                  // no input channels
+      1,                  // mono
+      paInt16,            // 16 bit int samples
+      SAMPLE_RATE,
+      256,                // arbitrary?
+      audio_callback,
+      &data);
+
+  Pa_StartStream(stream);
+
+  while (Pa_IsStreamActive(stream) == 1) //busy waiting, bad practice but whatever
+      Pa_Sleep(100);
+
+  Pa_StopStream(stream);
+  Pa_CloseStream(stream);
+  Pa_Terminate();
+
+  return 0;
 }
