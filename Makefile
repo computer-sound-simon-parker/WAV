@@ -1,10 +1,10 @@
 CC = gcc
-CFLAGS = -Wall -Wextra
+LIBS = -lportaudio -lm
 
 all: wav
 
 wav: wav.c
-	$(CC) $(CFLAGS) -o wav wav.c 
+	$(CC) -o wav wav.c $(LIBS)
 
 clean:
 	rm -f wav *.o *.wav
