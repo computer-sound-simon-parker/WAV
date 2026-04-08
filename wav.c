@@ -31,6 +31,7 @@ void write_str(FILE *fp, char *str){
   fwrite(str, strlen(str), 1, fp);
 }
 
+//writes a wav header to fp
 void write_header(FILE *fp){
   write_str(fp, "RIFF");
   write_LE(fp, (44 + (NUM_CHANNELS*SAMPLE_RATE*DURATION*SAMPLE_BITS/8)) - 8, 4);
