@@ -17,6 +17,7 @@
 #define MAX_INT16 32767
 
 
+//writes num_bytes of an int to a file pointed to by fp, in little endian
 void write_LE(FILE *fp, int num, int num_bytes){
   char byte;
   for (int i = 0; i < num_bytes; i++){
@@ -46,6 +47,7 @@ void write_header(FILE *fp){
   write_LE(fp,NUM_CHANNELS*SAMPLE_RATE*DURATION*SAMPLE_BITS/8, 4); 
 }
 
+//writes a sine wave to a file pointed to by fp, each sample is little endian
 void write_sine(FILE *fp){
   int16_t sample;
   for (int i = 0; i < DURATION*SAMPLE_RATE; i++){
@@ -54,6 +56,7 @@ void write_sine(FILE *fp){
   }
 }
 
+//writes a clipped sine wave to fp
 void write_clipped_sine(FILE *fp){
   int16_t sample;
   for (int i = 0; i < DURATION*SAMPLE_RATE; i++){
@@ -63,11 +66,14 @@ void write_clipped_sine(FILE *fp){
   }
 }
 
+//used to keep track of progress of audio playback
 typedef struct {
     int cur_sample;
     int frames_remaining;
 } SampleTracker;
 
+
+//fills a buffer with samples and sends that to the audio stream
 int audio_callback(const void *input, void *output,
                           unsigned long frame_count,
                           const PaStreamCallbackTimeInfo *time_info,
